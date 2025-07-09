@@ -6,13 +6,6 @@ import fs from "fs";
 const baseScreenshotFolderName =
   process.env.BASESCREENSHOTFOLDERNAME ?? "./screenshots";
 
-async function sleep(time) {
-  return new Promise((resolve) => {
-    console.log(`Sleeping for ${time} ms`);
-    setTimeout(resolve, time);
-  });
-}
-
 function createFolder(folderName) {
   if (!fs.existsSync(folderName)) {
     fs.mkdirSync(folderName, { recursive: true });

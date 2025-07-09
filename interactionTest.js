@@ -2,28 +2,34 @@
 TASK: test interactions with a form and ui elements
 
 https://youtube.com/
-TODO: Get a screenshot and a blurred screenshot
-TODO: Complete and submit the search form with value from cli or env
+TASK: Get a screenshot and a blurred screenshot
+TASK: Complete and submit the search form with value from cli or env
 '#search-input #search' and '#search-icon-legacy'
-TODO: screenshot of search results
-TODO: output text from firstMatch 'ytd-video-renderer h3 a#video-title'
-TODO: click on firstMatch, navigate
-TODO: click on dismiss button for login '#dismiss-button'
-TODO: wait for and check number of comments `ytd-comments-header-renderer h2`
-TODO: screenshot of video playing
-TODO: get text for first suggested 'ytd-compact-video-renderer'
-TODO: output comment count and first suggested video title
+TASK: screenshot of search results
+TASK: output text from firstMatch 'ytd-video-renderer h3 a#video-title'
+TASK: click on firstMatch, navigate
+TASK: click on dismiss button for login '#dismiss-button'
+TASK: wait for and check number of comments `ytd-comments-header-renderer h2`
+TASK: screenshot of video playing
 */
 
 import puppeteer from "puppeteer";
 
 const baseScreenshotFolderName =
   process.env.BASESCREENSHOTFOLDERNAME ?? "./screenshots";
+const baseInteractionTestFolderName = `${baseScreenshotFolderName}/interactionTest`;
 
 const defaultSearchTerm = "MrBeast";
 const searchTermCLI =
   process.argv.length >= 3 ? process.argv[2] : defaultSearchTerm;
 const searchTermENV = process.env.SEARCHTEXT ?? defaultSearchTerm;
+
+async function sleep(time) {
+  return new Promise((resolve) => {
+    console.log(`Sleeping for ${time} ms`);
+    setTimeout(resolve, time);
+  });
+}
 
 (async function () {
   const browser = await puppeteer.launch({ headless: false });
@@ -48,12 +54,50 @@ const searchTermENV = process.env.SEARCHTEXT ?? defaultSearchTerm;
 
   await page.emulateVisionDeficiency("blurredVision");
   await page.screenshot({
-    path: `${baseScreenshotFolderName}/interactionTest/homePageBlurred.jpg`,
+    path: `${baseInteractionTestFolderName}/homePageBlurred.jpg`,
   });
   await page.emulateVisionDeficiency("none");
   await page.screenshot({
-    path: `${baseScreenshotFolderName}/interactionTest/homePageNomal.jpg`,
+    path: `${baseInteractionTestFolderName}/homePageNomal.jpg`,
   });
+
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click(
+      ".ytSearchboxComponentSearchButton.ytSearchboxComponentSearchButtonDark"
+    ),
+  ]);
+
+  await page.waitForSelector("ytd-video-renderer h3 a#video-title");
+  await page.screenshot({
+    path: `${baseInteractionTestFolderName}/firstVideoSuggestion.jpg`,
+  });
+
+  const firstMatch = await page.$eval(
+    "ytd-video-renderer h3 a#video-title",
+    (elem) => {
+      return elem.innerText;
+    }
+  );
+
+  console.log({ firstMatch });
+
+  await Promise.all([
+    page.waitForNavigation(),
+    page.click("ytd-video-renderer h3 a#video-title"),
+    sleep(25000),
+  ]);
+  await page.screenshot({
+    path: `${baseInteractionTestFolderName}/first-video.jpg`,
+  });
+  await page.waitForSelector("ytd-comments-header-renderer");
+  const videoComments = await page.$eval(
+    "ytd-comments-header-renderer h2",
+    (h2) => {
+      return h2.innerText;
+    }
+  );
+  console.log({ videoComments });
 
   await browser.close();
 })();
