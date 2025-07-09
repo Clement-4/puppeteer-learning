@@ -1,0 +1,16 @@
+{
+  "name": "puppeteer-practice",
+  "version": "1.0.0",
+  "description": "- It's a headless UI ( invisible UI ) that has all the powers of browser. Want to learn more -> got to : https://pptr.dev/",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^19.11.1"
+  }
+}
