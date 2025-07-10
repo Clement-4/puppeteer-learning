@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import fs from "fs";
+import { existsSync, mkdirSync } from "fs";
 
 //INFO: It is invoked immediately, so it can be ifee, go check the api for more reference
 
@@ -7,8 +7,8 @@ const baseScreenshotFolderName =
   process.env.BASESCREENSHOTFOLDERNAME ?? "./screenshots";
 
 function createFolder(folderName) {
-  if (!fs.existsSync(folderName)) {
-    fs.mkdirSync(folderName, { recursive: true });
+  if (!existsSync(folderName)) {
+    mkdirSync(folderName, { recursive: true });
   }
 }
 
