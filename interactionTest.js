@@ -2,27 +2,31 @@
 TASK: test interactions with a form and ui elements
 
 https://youtube.com/
-TASK: Get a screenshot and a blurred screenshot
-TASK: Complete and submit the search form with value from cli or env
-'#search-input #search' and '#search-icon-legacy'
-TASK: screenshot of search results
-TASK: output text from firstMatch 'ytd-video-renderer h3 a#video-title'
-TASK: click on firstMatch, navigate
-TASK: click on dismiss button for login '#dismiss-button'
-TASK: wait for and check number of comments `ytd-comments-header-renderer h2`
-TASK: screenshot of video playing
+- Get a screenshot and a blurred screenshot
+- Complete and submit the search form with value from cli or env
+- INFO: element to select : input : 'input.ytSearchboxComponentInput.yt-searchbox-input.title' and button : '.ytSearchboxComponentSearchButton.ytSearchboxComponentSearchButtonDark'
+- screenshot of search results
+- output text from firstMatch 'ytd-video-renderer h3 a#video-title'
+- click on firstMatch, navigate
+- click on dismiss button for login '#dismiss-button'
+- wait for and check number of comments `ytd-comments-header-renderer h2`
+- screenshot of video playing
 */
 
 import puppeteer from "puppeteer";
 
 const baseScreenshotFolderName =
-  process.env.BASESCREENSHOTFOLDERNAME ?? "./screenshots";
+  process.env.BASE_SCREENSHOT_FOLDER_NAME ?? "./screenshots";
 const baseInteractionTestFolderName = `${baseScreenshotFolderName}/interactionTest`;
 
 const defaultSearchTerm = "MrBeast";
 const searchTermCLI =
   process.argv.length >= 3 ? process.argv[2] : defaultSearchTerm;
 const searchTermENV = process.env.SEARCHTEXT ?? defaultSearchTerm;
+
+const CLASS_SELECTOR =
+  "input.ytSearchboxComponentInput.yt-searchbox-input.title";
+const VIDEO_TITLE_SELECTOR = "ytd-video-renderer h3 a#video-title";
 
 async function sleep(time) {
   return new Promise((resolve) => {
@@ -46,11 +50,8 @@ async function sleep(time) {
 
   await page.goto("https://www.youtube.com/");
 
-  const classSelector =
-    "input.ytSearchboxComponentInput.yt-searchbox-input.title";
-
-  await page.waitForSelector(classSelector);
-  await page.type(classSelector, searchTermCLI, { delay: 50 });
+  await page.waitForSelector(CLASS_SELECTOR);
+  await page.type(CLASS_SELECTOR, searchTermCLI, { delay: 50 });
 
   await page.emulateVisionDeficiency("blurredVision");
   await page.screenshot({
@@ -68,23 +69,20 @@ async function sleep(time) {
     ),
   ]);
 
-  await page.waitForSelector("ytd-video-renderer h3 a#video-title");
+  await page.waitForSelector(VIDEO_TITLE_SELECTOR);
   await page.screenshot({
     path: `${baseInteractionTestFolderName}/firstVideoSuggestion.jpg`,
   });
 
-  const firstMatch = await page.$eval(
-    "ytd-video-renderer h3 a#video-title",
-    (elem) => {
-      return elem.innerText;
-    }
-  );
+  const firstMatch = await page.$eval(VIDEO_TITLE_SELECTOR, (elem) => {
+    return elem.innerText;
+  });
 
   console.log({ firstMatch });
 
   await Promise.all([
     page.waitForNavigation(),
-    page.click("ytd-video-renderer h3 a#video-title"),
+    page.click(VIDEO_TITLE_SELECTOR),
     sleep(25000),
   ]);
   await page.screenshot({
