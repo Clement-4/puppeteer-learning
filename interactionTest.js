@@ -1,7 +1,7 @@
 /*
 TASK: test interactions with a form and ui elements
 
-https://youtube.com/
+- INFO: URL : https://youtube.com/
 - Get a screenshot and a blurred screenshot
 - Complete and submit the search form with value from cli or env
 - INFO: element to select : input : 'input.ytSearchboxComponentInput.yt-searchbox-input.title' and button : '.ytSearchboxComponentSearchButton.ytSearchboxComponentSearchButtonDark'
@@ -97,5 +97,6 @@ async function sleep(time) {
   );
   console.log({ videoComments });
 
+  await page.close();
   await browser.close();
 })();

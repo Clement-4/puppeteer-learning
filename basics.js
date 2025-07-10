@@ -1,16 +1,10 @@
 import puppeteer from "puppeteer";
-import { existsSync, mkdirSync } from "fs";
+import { createFolder } from "./utils/fileOperations";
 
 //INFO: It is invoked immediately, so it can be ifee, go check the api for more reference
 
 const baseScreenshotFolderName =
   process.env.BASESCREENSHOTFOLDERNAME ?? "./screenshots";
-
-function createFolder(folderName) {
-  if (!existsSync(folderName)) {
-    mkdirSync(folderName, { recursive: true });
-  }
-}
 
 (async function () {
   const browser = await puppeteer.launch({ headless: false });
@@ -49,6 +43,7 @@ function createFolder(folderName) {
   } catch (err) {
     console.error(`Error during screenshot or folder creation: ${err.message}`);
   } finally {
+    await page.close();
     await browser.close();
   }
 })();
